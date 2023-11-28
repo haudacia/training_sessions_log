@@ -1,61 +1,85 @@
 import pandas as pd
 import datetime
 
-# NAO TO SABENDO SE USO LIST COMPREHENSION OU AS INDENTACOES C FOR LOOP PRA DESTRINCHAR OS DADOS DO INPUT E ENTAO
-# ADICIONALOS A DATABASE.
 def armazenar_dados_exercicios():
     training_date = datetime.date.today()
-    # df.loc[training_date, 'TENIS'] = 'flat'
-    # linha_a_modificar = df[df['TENIS'] == 'flat'].index
-    # df.loc[linha_a_modificar, 'MEIA'] = 'cano alto'
-    # df.insert(0, 'DATA TREINO', [training_date])
+    dict_exercicio = {'DATE': '',
+                      'EXERCISE': '',
+                      'WEIGHT 1 (kg)': ''}
 
+    df = pd.DataFrame(columns=dict_exercicio)
+    df.at[0,'DATE'] = training_date
+    print(df)
     user_input = input('Copie e cole os dados do treino. Ex.: excio1 weight1-reps,reps,reps-weight2-reps. excio2...\n') #raw
     #separo infos. na ordem nome exercicio, weight, quan reps sets 1 a x (quan series varia, geralmente 2 <= 5)
-    training_session = user_input.split('.')
-    weighted_exercises = [exercise.split() for exercise in training_session if '-' in exercise]
-    other_types = [exercise.split() for exercise in training_session if '-' not in exercise] #the ones who do not use weights, such as planck, abs, cardio in general, calisthenics.
-    all_exercises = weighted_exercises + other_types
-    weights = []
-    exercise_names = []
-    amount_of_sets = []
-    reps_total = []
-    weight_changes = []
-    repss = []
-    for exercise in weighted_exercises:
-        exercise_name = exercise[0] #This will always be the case (the name of the given exercise will always be in the position index 0, AS LONG AS the user input respects the format 'name_exercise weight1-#reps_serie1,#reps_serie2...'
-        exercise_names.append(exercise_name)
-        # como eu mostro o exercicio apenas uma vez (uma linha e so), mas se ele tiver tido mudanca de carga, ele tenha mais colunas preenchidas
-        # print(f'____________________{exercise_name.upper()}____________________:')
-        index_position = 1  # because zero index is always where the name or identified of the exercise will be, as explained before.
-        times_weight_changed = len(exercise)
-        while index_position < times_weight_changed:
+    weighted = [exercise.split() for exercise in user_input.split('.') if '-' in exercise] # separa nome do exercicio de respectivas cargas e series.
+    other_types = [exercise.split() for exercise in user_input.split('.') if '-' not in exercise] #the ones who do not use weights, such as planck, abs, cardio in general, calisthenics.
+    all_exercises = weighted + other_types
+    print(all_exercises)
+    names = [exercise[0] for exercise in weighted] #This will always be the case (the name of the given exercise will always be in the position index 0, AS LONG AS the user input respects the format 'name_exercise weight1-#reps_serie1,#reps_serie2...'
+    for index, exercise in enumerate(weighted):
+        sets_by_weight = exercise[1].split('-')
+        weight = int(sets_by_weight[0])
+        sets = sets_by_weight[1].split(',')
 
-                weight = int(exercise[index_position].split('-')[0])
-                series = exercise[index_position].split('-')[1]
-                reps = [int(item) for item in (series.split(','))]  # list with integers representing the number of reps performed in a given exercise.
-                quan_total_series = len(reps)  # Logically, the lenght of that list above will represent exaclty the amount of sets performed with the given weight.
-                # print(f'{weight} kg with {quan_total_series} sets of {reps} reps, in order.')
-                index_position += 1
+        if len(exercise) >= 2:
+            df.loc[index, 'EXERCISE'] = exercise[0] #nome.
+            df.loc[index, 'WEIGHT 1 (kg)'] = exercise[1][:2]
+            for i in range(len(sets)):
+                nome_col = f's{i+1}'
+                print(nome_col)
+                df.loc[index, nome_col] = sets[i]
 
-                weights.append(weight)
-                amount_of_sets.append(quan_total_series)
-                reps_total.append(reps)
-                weight_changes.append(times_weight_changed-1)
-                print(weight_changes)
-                repss.append(reps)
+            # for i in range(len(sets)):
+            #     df.loc[index, 'REPS2'] = sets[i]
+            print(df)
+        else:
+            print('ok')
+
+
+
+    #     df.insert(1, 'EXERCISE', [exercise[0]])
+    #     print(df)
+    #     # como eu mostro o exercicio apenas uma vez (uma linha e so), mas se ele tiver tido mudanca de carga, ele tenha mais colunas preenchidas
+    #     # print(f'____________________{exercise_name.upper()}____________________:')
+    #     index_position = 1  # because zero index is always where the name or identified of the exercise will be, as explained before.
+    #     times_weight_changed = len(exercise)
+    #     while index_position < times_weight_changed:
+    #             weight = int(exercise[index_position].split('-')[0])
+    #             series = exercise[index_position].split('-')[1]
+    #             reps = [int(item) for item in (series.split(','))]  # list with integers representing the number of reps performed in a given exercise.
+    #             quan_total_series = len(reps)  # Logically, the lenght of that list above will represent exaclty the amount of sets performed with the given weight.
+    #             # print(f'{weight} kg with {quan_total_series} sets of {reps} reps, in order.')
+    #             index_position += 1
+    #
+    #
                 # df.at[-1, 'QUANT SERIES'] = int(quan_total_series)
+                #TENTAR ISSO EM VEZ DE APPEND A LUSTAS VAZIAS.
+                # df['NAME'] = exercise_name
+                # df['WEIGHT'] = weight
+                # df['WEIGHT CHANGES'] = weight_changes
+                # for i in range(1, times_weight_changed):
+                #     print(i)
+                #     df.loc[linha_a_modificar, 'REPS S2'] = reps[i]
+                #
+                #
+                # linha_a_modificar = df[df['WEIGHT CHANGES'] == 2].index
+                # print(linha_a_modificar)
+                # df.loc[linha_a_modificar, 'REPS S2'] = reps[1]
+                # df.loc[linha_a_modificar, 'REPS S3'] = reps[2]
+                # df.insert(0, 'DATA TREINO', [training_date])
+                # print(df)
 
-        dict_exercicio1 = {'NAME': exercise_names,
-                           'WEIGHT (kg)': weights,
-                           'REPS': repss,
-                           'WEIGHT CHANGES': weight_changes}
 
-        df = pd.DataFrame(dict_exercicio1)
 
-        df.insert(0, 'SESSION DATE', '') # Cria nova coluna chamada SESSION DATE mas deixando-a vazia(senão a data vai ser escrita em todas as linhas e nao precisa.)
-        df.loc[-1, 'SESSION DATE'] = training_date #INSERIR a data apenas na última linha da nova coluna.
-        print(df)
+        # df.insert(0, 'SESSION DATE', '') # Cria nova coluna chamada SESSION DATE mas deixando-a vazia(senão a data vai ser escrita em todas as linhas e nao precisa.)
+        # df.loc[linha_a_modificar, 'x'] = 'ALGUM CALCULO AQUI' #INSERIR a data apenas na última linha da nova coluna.
+        # print(df)
+
+
+
+
+
 
     # dict_exercicio = {'NAME': exercise_names,
     #                   'WEIGHT': weights,
