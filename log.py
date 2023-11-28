@@ -1,16 +1,21 @@
+import os
+
 import pandas as pd
 import datetime
 
-def store_training_session():
-    training_date = datetime.date.today()
-    dict_exercicio = {'DATE': '',
-                      'EXERCISE': ''}
 
-    df = pd.DataFrame(columns=dict_exercicio)
+global df
+dict_exercicio = {'DATE': '','EXERCISE': ''}
+df = pd.DataFrame(columns=dict_exercicio)
+def store_training_session():
+    global df
+    training_date = datetime.date.today()
+    # Convert the new data to a DataFrame
+
+    new_df = pd.DataFrame()
     pd.set_option('display.max_columns', None)
     pd.set_option('display.max_rows', None)
-
-    df.at[0, 'DATE'] = training_date
+    new_df.at[0, 'DATE'] = training_date
     user_input = input('Copie e cole os dados do treino. Ex.: excio1 weight1-reps,reps,reps-weight2-reps. excio2...\n') #raw
     #separo infos. na ordem nome exercicio, weight, quan reps sets 1 a x (quan series varia, geralmente 2 <= 5)
     weighted = [exercise.split() for exercise in user_input.split('.') if '-' in exercise] # separa nome do exercicio de respectivas cargas e series.
@@ -20,24 +25,38 @@ def store_training_session():
 
     for index, exercise in enumerate(weighted):
         name = exercise[0]
-        df.loc[index, 'EXERCISE'] = name
+        new_df.loc[index, 'EXERCISE'] = name
         qtdd_cargas_usadas = len(exercise)-1
 
         for i in (range(qtdd_cargas_usadas)):
             sets_by_weight = exercise[i+1].split('-')
             sets = sets_by_weight[1].split(',')
-            names_col_weights = f'WEIGHT #{i+1}'
-            df.loc[index, names_col_weights] = sets_by_weight[0]
-            # df.loc[index, names_col_sets] = (
-            for i in range(len(sets)):
-                names_col_sets = f'SETS #{i + 1}'
-                df.loc[index, names_col_sets] = sets[i]
-
+            names_col_weights = f'W {i+1}'
+            new_df.loc[index, names_col_weights] = sets_by_weight[0]
+            names_col_sets = f'SETS{i+1}'
+            # df.loc[index, names_col_sets] = sets_by_weight[1]
+            print(sets_by_weight[1])
+            for item in sets_by_weight[1].split(','):
+                print(item)
+                names_col_sets = f'S#{item}'
+                new_df.loc[index, names_col_sets] = item
+            print(new_df)
+            # for i in range(len(sets)):
+            #     names_col_sets = f'SETS #{i + 1}'
+            #     new_df.loc[index, names_col_sets] = sets[i]
             #parei aqui, tentando alocar 1 coluna pra cada serie, tipo 15kg - 9reps 8reps..
+
+
             # for n in range(len(sets)):
             #     df.loc[index, n] = sets[n]
+    # Append the new DataFrame to the existing DataFrame
 
+    return(new_df)
+    df = pd.concat([df, new_df], ignore_index=True)
+df.to_csv(r'C:\export_dataframe.csv', index=None, header=True)
+os.startfile(r'C:\export_dataframe.csv')
 
+print(df)
 
 #marcus deu a dica do index (q depois adaptei acima):
     # for index, exercise in enumerate(weighted):
@@ -56,7 +75,6 @@ def store_training_session():
 
             # for i in range(len(sets)):
             #     df.loc[index, 'REPS2'] = sets[i]
-        print(df)
-
 
 store_training_session()
+print(df)
