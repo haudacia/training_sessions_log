@@ -6,7 +6,6 @@ import datetime
 def armazenar_dados_exercicios():
     training_date = datetime.date.today()
     # df.loc[training_date, 'TENIS'] = 'flat'
-
     # linha_a_modificar = df[df['TENIS'] == 'flat'].index
     # df.loc[linha_a_modificar, 'MEIA'] = 'cano alto'
     # df.insert(0, 'DATA TREINO', [training_date])
